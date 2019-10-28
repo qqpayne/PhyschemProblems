@@ -18,6 +18,6 @@ double harm(FILE *f){
 		s+=(1/x);
 		++n;
 	}
-	harm = s/n;
+	harm = 1/(s/n);
 	return harm;
 }
