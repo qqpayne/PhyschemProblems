@@ -7,7 +7,7 @@ int main(){
 	double s = harm(f);
 	fclose(f);
 	FILE *g = fopen("output.txt", "wt");
-	fprintf(g, "%lf", s);
+	fprintf(g, "%lf\n", s);
 	fclose(g);
 	return 0;
 }
