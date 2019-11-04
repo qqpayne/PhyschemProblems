@@ -1,8 +1,14 @@
 #include <stdio.h>
 
+/*
+This program determine whether there is a fragmentation of array, that the sum of first k elems equals the sum of the rest elems
+Works for integer arrays 
+Written November 4, 2019
+*/
+
 struct pair lucky(int* a, int n);
 
-// it also possible to return only k and count s = (summ from a[0] till a[k-1]) 
+// it also possible to avoid struct usage and return only k, then count s = (summ from a[0] till a[k-1]) 
 struct pair
 {
     int k, s;
@@ -66,25 +72,3 @@ struct pair lucky(int* a, int n){
     struct pair res = {k, s1};
     return res;
 }
-
-// dumb version
-/*
-struct pair lucky(int* a, int n){
-    int k, i, j;
-    int s1 = 0, s2 = 0;
-    for (k = (n-1); k>0; --k){
-        for (i = 0; i<k; ++i){
-            s1+=a[i]
-        }
-        for (j = k; j<n; ++j){
-            s2+=a[j]
-        }
-        if (s1 == s2)
-            break;
-        s1 = 0;
-        s2 = 0;
-    }
-    struct pair res = {k, s1};
-    return res;
-}
-*/
