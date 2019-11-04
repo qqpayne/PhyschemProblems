@@ -1,5 +1,10 @@
 #include <stdio.h> 
 
+/*
+This function determine if sequence elems satisfy a(x(i)) + b(x(i+1)) + c(x(i+2)) = d. 
+Written October 19, 2019
+*/
+
 bool isrecur(FILE *f){
     int a, b, c, d, x, x1, x2, i = 0;
     int result = true;
