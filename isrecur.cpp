@@ -1,7 +1,7 @@
 #include <stdio.h> 
 
 /*
-This function determine if sequence elems satisfy a(x(i)) + b(x(i+1)) + c(x(i+2)) = d. 
+This function determines if sequence elems satisfy a(x(i)) + b(x(i+1)) + c(x(i+2)) = d. 
 Written October 19, 2019
 */
 
