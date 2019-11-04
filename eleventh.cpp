@@ -1,6 +1,11 @@
 #include <stdio.h>
 #include <limits.h>
 
+/*
+This program counts the number of different elements in sequence
+Written October 28, 2019
+*/
+
 int diffelem(FILE *f);
 
 int main(){
