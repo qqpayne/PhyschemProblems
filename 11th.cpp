@@ -1,12 +1,11 @@
 #include <stdio.h>
 
-struct pair lucky(double* a, int n);
+struct pair lucky(int* a, int n);
 
 // it also possible to return only k and count s = (summ from a[0] till a[k-1]) 
 struct pair
 {
-    int k;
-    double s;
+    int k, s;
 };
 
 int main() {
@@ -15,15 +14,15 @@ int main() {
         perror("Cannot open input file");
         return (-1);
     }
-    double *a;
+    int *a;
     int n;
     if (fscanf(f, "%d", &n) < 1 || n < 0) {
         printf("Incorrect input file.\n");
         return (-1);
     }
-    a = new double[n];
+    a = new int[n];
     for (int i = 0; i < n; ++i) {
-        if (fscanf(f, "%lg", a + i) < 1) {
+        if (fscanf(f, "%d", a + i) < 1) {
             printf("Incorrect input file.\n");
             fclose(f);
             delete[] a;
@@ -43,7 +42,7 @@ int main() {
     if (res.k == 0)
         fprintf(g, "-1");
     else
-        fprintf(g, "%d %g", res.k, res.s);
+        fprintf(g, "%d %d", res.k, res.s);
     fprintf(g, "\n");
     fclose(g);
     delete[] a;
@@ -51,9 +50,9 @@ int main() {
 }
 
 // smart version
-struct pair lucky(double* a, int n){
+struct pair lucky(int* a, int n){
     int k, i;
-    double s1 = 0, s2 = 0;
+    int s1 = 0, s2 = 0;
     for (i = 0; i<n; ++i){
             s1+=a[i];
         }
@@ -70,9 +69,9 @@ struct pair lucky(double* a, int n){
 
 // dumb version
 /*
-struct pair lucky(double* a, int n){
+struct pair lucky(int* a, int n){
     int k, i, j;
-    double s1 = 0, s2 = 0;
+    int s1 = 0, s2 = 0;
     for (k = (n-1); k>0; --k){
         for (i = 0; i<k; ++i){
             s1+=a[i]
