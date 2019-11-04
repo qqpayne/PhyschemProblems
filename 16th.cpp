@@ -1,6 +1,11 @@
 #include <stdio.h>
 
-void oddSort(double* a, int n);
+/*
+This program sort only those array elems which are located on odd positions
+Written November 4, 2019
+*/
+
+void oddSort(double* a, int n); // modified bubble 
 
 int main() {
     FILE *f = fopen("input.txt", "rt");
@@ -49,7 +54,7 @@ void oddSort(double* a, int n) {
     int k = 0;
     while (!sorted) {
         sorted = true;
-        for (int i = 1; i < n-2-k; i=i+2) {
+        for (int i = 0; i < n-2-k; i=i+2) {
             if (a[i] > a[i+2]) {
                 sorted = false;
                 double tmp = a[i];
