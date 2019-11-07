@@ -1,28 +1,73 @@
 #include <stdio.h>
 #include <math.h>
 
-int convert(int a, int basis); // this program works only for basis <= 10
+/* 
+Converts given number to a given system number. Works correctly only for bases <= 36.
+Written November 7, 2019
+*/
+
+void convert(int num, int basis); 
+int basislen(int num, int basis);
+void getdigits(int *arr, int num, int basis);
+void invert(int *arr, int len);
 
 int main(){
-    int x;
+    int x, basis;
+    printf("What number do you want to convert?: ");
     scanf("%d", &x);
-    printf("%d", convert(x, 16));
+    while (true){
+    	printf("To what number system base?: ");
+    	scanf("%d", &basis);
+    	if (basis < 2)
+    		printf("No cheating! Try again. \n");
+    	else
+    		break; 
+    }
+    convert(x, basis);
 }
 
-int convert(int a, int basis){
-    int x = a, result = 0, len = 1;
-    while (x >= pow(basis, len)){ // getting length of number in basis
-        ++len;
-    }
-    int* numbers = new int[len]; 
+void convert(int num, int basis){
+    int len = basislen(num, basis);
+    int* digits = new int[len]; 
+    getdigits(digits, num, basis);
+    invert(digits, len);
     
-    for(int i = 0; x!=0; ++i){ // getting digits
-        numbers[i] = x % basis;
-        x /= basis;
+    // printing array out
+    printf("%d in %d system is: ", num, basis);
+    for (int i = 0; i < len; ++i){
+    	if (digits[i] > 9)
+    		printf("%c", ('A'+digits[i]-10));
+    	else 
+    		printf("%d", digits[i]);
     }
-    
-    for (int i = (len-1); i>(-1); --i){ // transforming it into a number
-        result += pow(10, i)*numbers[i]; // it's better to inverse array and return it
-    }
-    return result;
+    printf("\n");
+}
+
+int basislen(int num, int basis){
+	// Returns length of given number in given basis
+	int len = 1;
+	while (num >= pow(basis, len)){
+		++len;
+	}
+	return len;
+}
+
+void getdigits(int *arr, int num, int basis){
+	// Fills array with digits of given number in given basis (in reversed order!)
+	for (int i = 0; num != 0; ++i){
+		arr[i] = num % basis;
+		num /= basis;
+	}
+}
+
+void invert(int *arr, int len){
+	// Inverts array in-place
+	int tmp, k = 0;
+	for (int i = (len-1); i >= (len/2); --i){
+		tmp = arr[k];
+		arr[k] = arr[i];
+		arr[i] = tmp;
+		k++;
+	}
+
 }
