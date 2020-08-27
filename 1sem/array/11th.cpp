@@ -1,74 +1,86 @@
 #include <stdio.h>
 
 /*
-This program determine whether there is a fragmentation of array, that the sum of first k elems equals the sum of the rest elems
-Works for integer arrays 
-Written November 4, 2019
+Возможно ли разбить целочисленный массив на два так, что сумма в первой половине равна сумме во второй
+Если возможно, возвращает "точку" разбиения и сумму. Если нет, возвращает -1
+Написано 4.11.19 Акостеловым И.И.
+Рефакторинг 28.08.20
 */
 
-struct pair lucky(int* a, int n);
+struct pair lucky(int* arr, int arrLength);
 
-// it also possible to avoid struct usage and return only k, then count s = (summ from a[0] till a[k-1]) 
 struct pair
 {
-    int k, s;
+    int breakpoint, sum;
 };
 
-int main() {
-    FILE *f = fopen("input.txt", "rt");
-    if (f == NULL) {
+int main() 
+{
+    FILE *inFile = fopen("input.txt", "rt");
+    if (inFile == NULL) 
+    {
         perror("Cannot open input file");
         return (-1);
     }
-    int *a;
-    int n;
-    if (fscanf(f, "%d", &n) < 1 || n < 0) {
+
+    int *arr;
+    int arrLength;
+    if (fscanf(inFile, "%d", &arrLength) < 1 || arrLength < 0) 
+    {
         printf("Incorrect input file.\n");
         return (-1);
     }
-    a = new int[n];
-    for (int i = 0; i < n; ++i) {
-        if (fscanf(f, "%d", a + i) < 1) {
+
+    arr = new int[arrLength];
+    for (int i = 0; i < arrLength; ++i) 
+    {
+        if (fscanf(inFile, "%d", arr + i) < 1) 
+        {
             printf("Incorrect input file.\n");
-            fclose(f);
-            delete[] a;
+            fclose(inFile);
+            delete[] arr;
             return (-1);
         }
     }
-    fclose(f);
+    fclose(inFile);
     
-    struct pair res = lucky(a, n);
+    struct pair res = lucky(arr, arrLength);
     
-    FILE* g = fopen("output.txt", "wt");
-    if (g == NULL) {
+    FILE* outFile = fopen("output.txt", "wt");
+    if (outFile == NULL) 
+    {
         perror("Cannot open output file");
-        delete[] a;
+        delete[] arr;
         return (-1);
     }
-    if (res.k == 0)
-        fprintf(g, "-1");
-    else
-        fprintf(g, "%d %d", res.k, res.s);
-    fprintf(g, "\n");
-    fclose(g);
-    delete[] a;
+
+    if (res.breakpoint == 0) fprintf(outFile, "-1");
+    else fprintf(outFile, "%d %d\n", res.breakpoint, res.sum);
+    fclose(outFile);
+    delete[] arr;
     return 0;
 }
 
-// smart version
-struct pair lucky(int* a, int n){
-    int k, i;
-    int s1 = 0, s2 = 0;
-    for (i = 0; i<n; ++i){
-            s1+=a[i];
-        }
+struct pair lucky(int* arr, int arrLength)
+{
+    
+    int breakpoint, firstSum = 0, secondSum = 0;
 
-    for (k = (n-1); k>0; --k){
-        s1-=a[k];
-        s2+=a[k];
-        if (s1 == s2)
-            break;
+    // сначала считаем сумму всего массива
+    for (int i = 0; i < arrLength; ++i)
+    {
+        firstSum += arr[i];
     }
-    struct pair res = {k, s1};
+
+    // затем начиная с конца вычитаем по одному элементу и проверяем не равна ли первая половина второй
+    for (breakpoint = (arrLength-1); breakpoint > 0; --breakpoint)
+    {
+        firstSum -= arr[breakpoint];
+        secondSum += arr[breakpoint];
+        if (firstSum == secondSum)
+        break;
+    }
+
+    struct pair res = {breakpoint, firstSum};
     return res;
 }
