@@ -22,7 +22,7 @@ int main(){
         return(-1);
     }
     
-    printf("%d\n", rank);
+    printf("Matrix rank is %d\n", rank);
 }
 
 int gauss(double *a, int m, int n) {
@@ -108,8 +108,3 @@ bool readMatrix(const char *path, double **a, int *m, int *n) {
     fclose(f);
     return true;
 }
-
-
-
-
-

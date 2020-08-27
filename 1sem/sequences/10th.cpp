@@ -1,12 +1,23 @@
 #include <stdio.h> 
 
-/*
-This function determines if sequence elems satisfy a(x(i)) + b(x(i+1)) + c(x(i+2)) = d. 
-Written October 19, 2019
-*/
+bool isrecur(FILE *f);
+
+int main(){
+    FILE *f = fopen("input.txt", "rt");
+    bool r = isrecur(f);
+    fclose(f);
+    FILE *g = fopen("output.txt", "wt");
+    if (r)
+        fprintf(g, "yes\n");
+    else
+        fprintf(g, "no\n");
+    fclose(g);
+    return 0;
+}
+
 
 bool isrecur(FILE *f){
-    int a, b, c, d, x, x1, x2, i = 0;
+    int a, b, c, d, x, x1, x2, s, i = 0;
     int result = true;
     fscanf(f, "%d", &a);
     fscanf(f, "%d", &b);

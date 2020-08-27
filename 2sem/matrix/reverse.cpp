@@ -3,7 +3,7 @@
 
 const double EPS = 1e-8;
 
-void inverse(double *a, int m, double *E);
+int inverse(double *a, int m, double *E);
 bool readMatrix(const char *path, double **a, int *m, int *n);
 bool writeMatrix(const char *path, const double *a, int m, int n);
 void swapRows(double *a, int m, int n, int i1, int i2);
@@ -24,29 +24,32 @@ int main(){
         return (-1);
     }
     
-    //int rank = gauss(a, m, n);
-    //
-    //if (rank < n) {
-    //    printf("Singular matrix.");
-    //    return (-1);
-    //}
-    
-    double *E = new double [m * m];
-    inverse(a, m, E);
-    
-    if (!writeMatrix("output.txt", E, m, m)) {
+    double *b = new double [m * m]; // указатель на обратную матрицу 
+    int rank = inverse(a, m, b);
+
+    if (rank != m){  // проверка на нулевой дискриминант
+        printf("Singular matrix.\n");
+        return (-1);
+    }
+
+    if (!writeMatrix("output.txt", b, m, m)) {
         perror("Cannot write.\n");
         return(-1);
     }
+
+    printf("Matrix rank is %d\n", rank);
+    return(0);
 }
 
-void inverse(double *a, int m, double *E) {
-    idM(E, m);
+int inverse(double *a, int m, double *E) {
+    // получаем обратную матрицу методом Гаусса с расширенной матрицей 
+
+    idM(E, m); // создаем единичную матрицу 
 
     int i = 0;
     int j = 0;
-    
-    // Гаусс с расширенной матрицей
+
+    // приводим исходную матрицу к ступенчатой
     while (i < m && j < m) {
         // ищем максимумальный ненулевой элемент в j-м столбце с i-ой строки
         double amax = (-1.);
@@ -58,7 +61,7 @@ void inverse(double *a, int m, double *E) {
             }
         }
         if (amax <= EPS) {
-            // seeking null columns
+            // 'обнуляем' нули
             for (int k = i; k < m; ++k) {
                 a[k*m+j]=0.;
             }
@@ -66,22 +69,37 @@ void inverse(double *a, int m, double *E) {
             continue;
         }
         if (kmax != i) {
-            // swap i and kmax in both matrixes
+            // меняем местами i-ую и максимальную строки в обоих матрицах
             swapRows(a, m, m, i, kmax);
             swapRows(E, m, m, i, kmax);
         }
-                 
         for (int k = i+1; k < m; ++k) {
-            // nulling j column, starting from i+1  
+            // зануляем оставшиеся строки 
             double lambda = a[k*m+j]/a[i*m+j];
             addRows(a, m, m, k, i, -lambda);
-            a[k*m+j] = 0.;
             addRows(E, m, m, k, i, -lambda);
-            E[k*m+j] = 0.;
         }
         ++i; ++j;
     }
-    
+
+    // приводим исходную матрицу к единичной
+    j = 0;
+    while (j < m) {
+    	// диагонализируем
+    	for (int k = 0; k<j; ++k){
+    		double lambda = a[k*m+j]/a[j*m+j];
+    		addRows(a, m, m, k, j, -lambda);
+            addRows(E, m, m, k, j, -lambda);
+    	}
+    	// нормализуем
+    	double lambda = (1.0/a[j*m+j]);
+    	multRows(a, m, m, j, lambda);
+    	multRows(E, m, m, j, lambda);
+    	++j;
+    }
+
+
+    return i;
 }
 
 
@@ -127,7 +145,7 @@ bool readMatrix(const char *path, double **a, int *m, int *n) {
 }
 
 void swapRows(double *a, int m, int n, int i1, int i2) {
-    // swap i1 and i2, det = const
+    // поменять местами строки i1 и i2, сохраняя значение определителя
     for (int j = 0; j<n; ++j) {
         double tmp = a[i1*n+j];
         a[i1*n+j] = a[i2*n+j];
@@ -137,21 +155,21 @@ void swapRows(double *a, int m, int n, int i1, int i2) {
 }
 
 void addRows(double *a, int m, int n, int i, int k, double lambda) {
-    // i1 plus lambda*i2
+    // сложить строку i с строкой lambda*k
     for (int j = 0; j<n; ++j) {
         a[i*n+j] += a[k*n+j]*lambda;
     }    
 }
 
 void multRows(double *a, int m, int n, int i, double lambda) {
-    // multiply i1 by lambda
+    // умножить строку i на лямбду
     for (int j = 0; j<n; ++j) {
         a[i*n+j] *= lambda;   
     }
 }
 
 void idM(double *E, int m){
-    // make identity matrix m*m
+    // создать единичную матрицу размером m*m
     for (int i = 0; i<m; ++i){
         for (int j = 0; j<m; ++j){
             E[i*m+j]=0;
