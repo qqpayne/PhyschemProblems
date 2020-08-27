@@ -4,7 +4,7 @@
 // вписанной в треугольник
 #include <iostream>
 #include <cmath>
-#include "libs/R2Graph.h"
+#include "libs/R2Graph.cpp"
 
 using namespace std;
 
