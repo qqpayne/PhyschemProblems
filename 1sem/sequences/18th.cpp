@@ -1,30 +1,41 @@
-#include <stdio.h> 
+#include <stdio.h>
 
-int growing(FILE *f);
+/*
+Подсчёт количества строго возрастающих участков последовательности целых чисел
+Написано 02.12.19 Акостеловым И.И.
+Рефакторинг 28.08.20
+*/
 
-int main(){
-    FILE *f = fopen("input.txt", "rt");
-    int r = growing(f);
-    fclose(f);
-    FILE *g = fopen("output.txt", "wt");
-    fprintf(g, "%d\n", r);
-    fclose(g);
+int locMax(FILE *file);
+
+int main()
+{
+    FILE *inFile = fopen("input.txt", "rt");
+    int numb = locMax(inFile);
+    fclose(inFile);
+
+    FILE *outFile = fopen("output.txt", "wt");
+    fprintf(outFile, "%d\n", numb);
+    fclose(outFile);
     return 0;
 }
 
-
-int growing(FILE *f){
-    int x, p, n = 0, i = 1;
-    fscanf(f, "%d", &p);
-    while (fscanf(f, "%d", &x) == 1){
-        if (x>p)
-            ++i;
-        else {
-            if (i>1)
-                ++n;
-            i = 1;
+int locMax(FILE *file)
+{
+    int x, prev, numb = 0, counter = 1;
+    fscanf(file, "%d", &prev);
+    while (fscanf(file, "%d", &x) == 1)
+    {
+        if (x > prev)
+            ++counter;
+        else
+        {
+            // строго возрастающими участками считаем только участки содержащие два элемента и более
+            if (counter >= 2)
+                ++numb;
+            counter = 1;
         }
-        p = x;
+        prev = x;
     }
-    return n;
+    return numb;
 }

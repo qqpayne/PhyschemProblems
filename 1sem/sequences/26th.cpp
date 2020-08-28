@@ -1,30 +1,44 @@
-#include <stdio.h> 
+#include <stdio.h>
 
-int growing(FILE *f);
+/*
+Подсчёт числа локальных максимумов последовательности целых чисел
+Написано 02.12.19 Акостеловым И.И.
+Рефакторинг 28.08.20
+*/
 
-int main(){
-    FILE *f = fopen("input.txt", "rt");
-    int r = growing(f);
-    fclose(f);
-    FILE *g = fopen("output.txt", "wt");
-    fprintf(g, "%d\n", r);
-    fclose(g);
+int growing(FILE *file);
+
+int main()
+{
+    FILE *inFile = fopen("input.txt", "rt");
+    int numb = growing(inFile);
+    fclose(inFile);
+
+    FILE *outFile = fopen("output.txt", "wt");
+    fprintf(outFile, "%d\n", numb);
+    fclose(outFile);
     return 0;
 }
 
+int growing(FILE *file)
+{
+    int x, prev, numb = 0;
+    bool suspected = false;
+    fscanf(file, "%d", &prev);
+    while (fscanf(file, "%d", &x) == 1)
+    {
+        // если точка была подозрительной на максимум, и следующий элемент уже не является большИм
+        // то мы прибавляем 1 к счетчику локальных максимумов
+        if ((x <= prev) && suspected)
+            ++numb;
 
-int growing(FILE *f){
-    int x, p, n = 0;
-    bool maybe = false;
-    fscanf(f, "%d", &p);
-    while (fscanf(f, "%d", &x) == 1){
-        if ((x<=p) and maybe)
-            ++n; 
-        if (x>=p)
-            maybe = true;
+        // если элемент больше предыдущего, то точка подозрительна на максимум
+        if (x >= prev)
+            suspected = true;
         else
-            maybe = false;
-        p = x;
+            suspected = false;
+
+        prev = x;
     }
-    return n;
+    return numb;
 }

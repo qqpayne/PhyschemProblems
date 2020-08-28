@@ -1,25 +1,34 @@
 #include <stdio.h>
 
-int biggerelem(FILE *f);
+/*
+Подсчёт числа элементов последовательности вещественных чисел, больших предыдущих
+Написано 02.12.19 Акостеловым И.И.
+Рефакторинг 28.08.20
+*/
 
-int main(){
-	FILE *f = fopen("input.txt", "rt");
-	int s = biggerelem(f);
-	fclose(f);
-	FILE *g = fopen("output.txt", "wt");
-	fprintf(g, "%d\n", s);
-	fclose(g);
+int biggerelem(FILE *file);
+
+int main()
+{
+	FILE *inFile = fopen("input.txt", "rt");
+	int numb = biggerelem(inFile);
+	fclose(inFile);
+
+	FILE *outFile = fopen("output.txt", "wt");
+	fprintf(outFile, "%d\n", numb);
+	fclose(outFile);
 	return 0;
 }
 
-int biggerelem(FILE *f){
-	double x, p;
-	int n = 0;
-	fscanf(f, "%lg", &p);
-	while (fscanf(f, "%lg", &x) == 1){
-		if (x>p)
-			++n;
-		p = x;
+int biggerelem(FILE *file)
+{
+	double x, prev;
+	int numb = 0;
+	fscanf(file, "%lg", &prev); 
+	while (fscanf(file, "%lg", &x) == 1)
+	{
+		if (x > prev) ++numb;
+		prev = x;
 	}
-	return n;
+	return numb;
 }
