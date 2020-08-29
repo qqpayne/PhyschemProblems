@@ -1,18 +1,22 @@
-// Простой пример на использование классов
-// R2Point и R2Vector, представляющих точку и вектор
-// на плоскости: вычислить центр и радиус окружности,
-// вписанной в треугольник
 #include <iostream>
 #include <cmath>
 #include "libs/R2Graph.cpp"
 
+/* 
+Простой пример на использование классов
+R2Point и R2Vector, представляющих точку и вектор
+на плоскости: вычислить центр и радиус окружности,
+вписанной в треугольник
+
+Написано Борисенко В. В.
+*/
+
 using namespace std;
 
-void inCircle(
-    const R2Point* points, R2Point& center, double& radius
-); 
+void inCircle(const R2Point* points, R2Point& center, double& radius); 
 
-int main() {
+int main() 
+{
     R2Point points[3];
     R2Point center;
     double radius;
@@ -29,9 +33,8 @@ int main() {
     return 0;
 }
 
-void inCircle(
-    const R2Point* points, R2Point& center, double& radius
-) {
+void inCircle(const R2Point* points, R2Point& center, double& radius) 
+{
     R2Vector ab = points[1] - points[0]; // сторона AB
     ab.normalize();
     R2Vector ac = points[2] - points[0]; // сторона AC
