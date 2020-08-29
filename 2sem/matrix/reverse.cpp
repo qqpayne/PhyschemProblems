@@ -1,180 +1,158 @@
 #include <stdio.h>
 #include <math.h>
+#include <string.h>
+#include "libs/matrixIO.cpp"
+#include "libs/matrixOperations.cpp"
+// можно просто скопировать исходный код в этот файл, если напрягает использование библиотек
+
+/*
+Преобразует матрицу в обратную и рассчитывает ранг матрицы
+Написано 22.05.20 Акостеловым И.И.
+Рефакторинг 29.08.20
+*/
 
 const double EPS = 1e-8;
 
-int inverse(double *a, int m, double *E);
-bool readMatrix(const char *path, double **a, int *m, int *n);
-bool writeMatrix(const char *path, const double *a, int m, int n);
-void swapRows(double *a, int m, int n, int i1, int i2);
-void addRows(double *a, int m, int n, int i1, int i2, double lambda);
-void multRows(double *a, int m, int n, int i, double lambda);
+int inverse(double *matr, int m);
 void idM(double *E, int m);
 
-int main(){
+int main()
+{
     int m, n;
-    double *a;
-    if(!readMatrix("input.txt", &a, &m, &n)) {
+    double *matr;
+
+    if (!readMatrix("input.txt", &matr, &m, &n))
+    {
         perror("Cannot read.\n");
-        return(-1);
+        return (-1);
     }
-    
-    if (m != n) {
+
+    if (m != n)
+    {
         printf("Matrix isn't square.\n");
         return (-1);
     }
-    
-    double *b = new double [m * m]; // указатель на обратную матрицу 
-    int rank = inverse(a, m, b);
 
-    if (rank != m){  // проверка на нулевой дискриминант
+    int rank = inverse(matr, m);
+
+    // проверка на нулевой дискриминант 
+    // (если ранг не равен m, то какие-то строки обнулились и дискриминант нулевой)
+    if (rank != m)
+    { 
         printf("Singular matrix.\n");
         return (-1);
     }
 
-    if (!writeMatrix("output.txt", b, m, m)) {
+    if (!writeMatrix("output.txt", matr, m, m))
+    {
         perror("Cannot write.\n");
-        return(-1);
+        return (-1);
     }
 
     printf("Matrix rank is %d\n", rank);
-    return(0);
+    return 0;
 }
 
-int inverse(double *a, int m, double *E) {
-    // получаем обратную матрицу методом Гаусса с расширенной матрицей 
+// in-place получаем обратную матрицу методом Гаусса с расширенной матрицей
+// т.е приводя исходную матрицу (размера m) к диагональной единичной, 
+// при этом все операции применяя к двум матрицам сразу
+int inverse(double *matr, int m)
+{
+    // расширяем матрицу, добавляя единичную матрицу
+    double *inversed = new double[m*m];
+    idM(inversed, m); 
 
-    idM(E, m); // создаем единичную матрицу 
-
-    int i = 0;
-    int j = 0;
+    int i = 0; // строки
+    int j = 0; // столбцы
 
     // приводим исходную матрицу к ступенчатой
-    while (i < m && j < m) {
+    while (i < m && j < m)
+    {
         // ищем максимумальный ненулевой элемент в j-м столбце с i-ой строки
-        double amax = (-1.);
-        int kmax = j;
-        for (int k = i; k < m; ++k) {
-            if (fabs(a[k*m+j])>amax) {
-                amax = fabs(a[k*m+j]);
-                kmax = k;
+        double maxElem = (-1.);
+        int maxElemRow = m;
+
+        // находим наибольший элемент в столбце и его позицию
+        for (int k = i; k < m; ++k)
+        {
+            if (abs(matr[k * m + j]) > maxElem)
+            {
+                maxElem = abs(matr[k * m + j]);
+                maxElemRow = k;
             }
         }
-        if (amax <= EPS) {
-            // 'обнуляем' нули
-            for (int k = i; k < m; ++k) {
-                a[k*m+j]=0.;
-            }
+
+        // если столбец оказался нулевым и максимальный элемент меньше погрешности
+        if (maxElem <= EPS)
+        {
+            // окончательно обнуляем его
+            for (int k = i; k < m; ++k)
+                matr[k * m + j] = 0.;
+
+            // переходим к следующему столбцу
             ++j;
             continue;
         }
-        if (kmax != i) {
-            // меняем местами i-ую и максимальную строки в обоих матрицах
-            swapRows(a, m, m, i, kmax);
-            swapRows(E, m, m, i, kmax);
+
+        // меняем местами i-ую и максимальную строки в обоих матрицах
+        if (maxElemRow != i)
+        {
+            swapRows(matr, m, i, maxElemRow);
+            swapRows(inversed, m, i, maxElemRow);
         }
-        for (int k = i+1; k < m; ++k) {
-            // зануляем оставшиеся строки 
-            double lambda = a[k*m+j]/a[i*m+j];
-            addRows(a, m, m, k, i, -lambda);
-            addRows(E, m, m, k, i, -lambda);
+
+        // обнуляем j-ый столбец начиная с i+1 строки
+        for (int k = i + 1; k < m; ++k)
+        {
+            // во сколько раз текущий элемент меньше наибольшего
+            double lambda = matr[k * m + j] / matr[i * m + j];
+
+            addRows(matr, m, k, i, -lambda);
+            addRows(inversed, m, k, i, -lambda);
         }
+
         ++i; ++j;
     }
 
     // приводим исходную матрицу к единичной
     j = 0;
-    while (j < m) {
-    	// диагонализируем
-    	for (int k = 0; k<j; ++k){
-    		double lambda = a[k*m+j]/a[j*m+j];
-    		addRows(a, m, m, k, j, -lambda);
-            addRows(E, m, m, k, j, -lambda);
-    	}
-    	// нормализуем
-    	double lambda = (1.0/a[j*m+j]);
-    	multRows(a, m, m, j, lambda);
-    	multRows(E, m, m, j, lambda);
-    	++j;
+    while (j < m)
+    {
+        // диагонализируем, вычитая из k-ой строки в j-ом столбце j-ую с коэффициентом для обнуления
+        for (int k = 0; k < j; ++k)
+        {
+            double lambda = matr[k * m + j] / matr[j * m + j];
+            addRows(matr, m, k, j, -lambda);
+            addRows(inversed, m, k, j, -lambda);
+        }
+
+        // нормализуем строку
+        double lambda = (1.0 / matr[j * m + j]);
+        multRows(matr, m, j, lambda);
+        multRows(inversed, m, j, lambda);
+
+        ++j;
     }
 
+    // чтобы возвращать обратную матрицу в той же переменной, нам нужно переместить байты
+    // из новой (обратной) в старую. просто поменять поинтер не пойдет - при выходе из
+    // функции её область стэка очищается, и поинтер будет указывать вникуда (т.к inversed сотрётся)
+    memmove(matr, inversed, m*m*sizeof(double));
 
     return i;
 }
 
-
-
-bool writeMatrix(const char *path, const double *a, int m, int n) {
-    FILE *f = fopen(path, "wt");
-    if (f == NULL) {
-        return false;
-    }
-    fprintf(f, "%d %d\n", m, n);
-    for (int i = 0; i < m; ++i) {
-        for (int j = 0; j < n; ++j) {
-            fprintf(f, "%16.6f", a[i*n+j]);
-        }
-      fprintf(f, "\n");
-    }
-    fclose(f);
-    return true;
-}
-
-bool readMatrix(const char *path, double **a, int *m, int *n) {
-    FILE *f = fopen(path, "rt");
-    if (f == NULL) {
-        return false;
-    }
-    if (fscanf(f, "%d%d", m, n) < 2) {
-        fclose(f);
-        return false;
-    }
-    
-    *a = new double [(*m) * (*n)];
-    
-    for (int i = 0; i < *m; ++i) {
-        for (int j = 0; j < *n; ++j) {
-            if (fscanf(f, "%lf", &((*a)[i*(*n)+j])) < 1) {
-                fclose(f);
-                return false;
-            }
-        }
-    }
-    fclose(f);
-    return true;
-}
-
-void swapRows(double *a, int m, int n, int i1, int i2) {
-    // поменять местами строки i1 и i2, сохраняя значение определителя
-    for (int j = 0; j<n; ++j) {
-        double tmp = a[i1*n+j];
-        a[i1*n+j] = a[i2*n+j];
-        a[i2*n+j] = (-tmp);
-    }
-    
-}
-
-void addRows(double *a, int m, int n, int i, int k, double lambda) {
-    // сложить строку i с строкой lambda*k
-    for (int j = 0; j<n; ++j) {
-        a[i*n+j] += a[k*n+j]*lambda;
-    }    
-}
-
-void multRows(double *a, int m, int n, int i, double lambda) {
-    // умножить строку i на лямбду
-    for (int j = 0; j<n; ++j) {
-        a[i*n+j] *= lambda;   
-    }
-}
-
-void idM(double *E, int m){
-    // создать единичную матрицу размером m*m
-    for (int i = 0; i<m; ++i){
-        for (int j = 0; j<m; ++j){
-            E[i*m+j]=0;
-            if (i == j){
-                E[i*m+j]=1;
+void idM(double *inversed, int m)
+{
+    // создать единичную матрицу размером m*m по указателю
+    for (int i = 0; i < m; ++i)
+    {
+        for (int j = 0; j < m; ++j)
+        {
+            inversed[i * m + j] = 0;
+            if (i == j)
+            {
+                inversed[i * m + j] = 1;
             }
         }
     }
