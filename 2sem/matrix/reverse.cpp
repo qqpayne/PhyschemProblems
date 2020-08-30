@@ -1,6 +1,5 @@
 #include <stdio.h>
 #include <math.h>
-#include <string.h>
 #include "libs/matrixIO.cpp"
 #include "libs/matrixOperations.cpp"
 // можно просто скопировать исходный код в этот файл, если напрягает использование библиотек
@@ -137,10 +136,12 @@ int inverse(double *matr, int m)
     // чтобы возвращать обратную матрицу в той же переменной, нам нужно переместить байты
     // из новой (обратной) в старую. просто поменять поинтер не пойдет - при выходе из
     // функции её область стэка очищается, и поинтер будет указывать вникуда (т.к inversed сотрётся)
-    memmove(matr, inversed, m*m*sizeof(double));
+    for (int i = 0; i < m*m; i++)
+        matr[i] = inversed[i];
 
     return i;
 }
+
 
 void idM(double *inversed, int m)
 {
