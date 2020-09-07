@@ -55,15 +55,15 @@ int main()
         }
         else
         {
-            R3Vector toPoint = radiusVector(lat, lon); // задаем вектор, указывающий на точку на поверхности
-            R3Point earthCenter = R3Point(0, 0, 0);    // система координат начинается в центре земли
+            R3Vector toPoint = radiusVector(lat, lon); // задаем вектор, указывающий на точку на поверхности Земли
+            R3Point earthCenter = R3Point(0, 0, 0);    // система координат начинается в центре Земли
 
-            R3Vector toPlane = radiusVector(mlat, mlon);                             // вектор, указывающий на точку центра карты
-            R3Point planeCenter = earthCenter + toPlane.normalized() * EARTH_RADIUS; // точка, находящаяся в точке касания (центре карты)
+            R3Vector toPlane = radiusVector(mlat, mlon);                             // вектор, указывающий на точку касания
+            R3Point planeCenter = earthCenter + toPlane.normalized() * EARTH_RADIUS; // точка касания (центр карты)
 
             R3Point intersection; // создаем точку которяа будет хранить точку пересечения
 
-            // плоскость задается точкой в ней лежащей и нормалью, прямая - точкой и направляющим вектором
+            // плоскость задается точкой, принадлежащей плоскости, и нормалью, прямая - точкой и направляющим вектором
             // пересечение плоскости карты и прямой из центра земли в проецируемую точку есть центральная проекция этой точки на карту
             intersectPlaneAndLine(planeCenter, toPlane.invert().normalized(), earthCenter, toPoint, intersection);
 
