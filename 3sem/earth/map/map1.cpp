@@ -72,7 +72,7 @@ int main()
 
             double x = toIntersection.projection(xAxis), y = toIntersection.projection(yAxis);
 
-            cout << "x: " << x << ", y: " << y << "\n"
+            cout << "x: " << x << " м, y: " << y << " м" << "\n"
                  << endl;
         }
     }
