@@ -130,6 +130,10 @@ public:
             x*v.y - y*v.x
         );
     }
+    
+    double projection(const R3Vector& v) const {
+        return(this->scalarProduct(v) / v.length());
+    }
 
     static double signedVolume(
         const R3Vector& v0, const R3Vector& v1, const R3Vector& v2
