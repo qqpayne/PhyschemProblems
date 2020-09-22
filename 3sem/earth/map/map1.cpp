@@ -68,7 +68,7 @@ int main()
             R3Vector toIntersection = intersection - planeCenter;
 
             R3Vector yAxis, xAxis;
-            defineAxes(earthCenter, mlat, mlon, &yAxis, &xAxis);
+            defineAxes(toPlane, &yAxis, &xAxis);
 
             double x = toIntersection.projection(xAxis), y = toIntersection.projection(yAxis);
 

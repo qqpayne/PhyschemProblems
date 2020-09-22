@@ -46,23 +46,16 @@ int main()
         R3Point planeCenter = earthCenter + toPlane;                             // центр карты, на поверхности Земли
 
         R3Vector yAxis, xAxis;
-        defineAxes(earthCenter, mlat, mlon, &yAxis, &xAxis);
+        defineAxes(toPlane, &yAxis, &xAxis);
 
         R3Vector toIntersectionInPlane = yAxis * mapY + xAxis * mapX; // координаты проекции на карте в земной системе отсчёта
         R3Vector toIntersection = toPlane + toIntersectionInPlane;    // вектор из центра земли в точку проекции; также проходит через её прообраз
 
-        // т.к toIntersection проходит через прообраз точки, то мы можем перевести его координаты в сферические:
-        // phi (долготу) находим как arctg(y/x)
-        // theta (почти широту) находим как arccos(z/sqrt(x^2+y^2+z^2) = arctg(sqrt(x^2+y^2)/z)
+        // т.к toIntersection проходит через прообраз точки, то мы можем перевести его координаты в сферические
+        double lat, lon;
+        earthCoords(toIntersection, &lat, &lon);
 
-        double x = toIntersection.x, y = toIntersection.y, z = toIntersection.z;
-
-        double phi = atan2(y, x);
-        double theta = atan2(sqrt(x * x + y * y), z);
-        // в сферической системе координат на экваторе theta = PI/2, и он растёт к южному полюсу, преобразуем его:
-        theta = (PI / 2) - theta;
-
-        cout << "Широта: " << theta * (180 / PI) << " град, долгота: " << phi * (180 / PI) << " град" << "\n"
+        cout << "Широта: " << lat << " град, долгота: " << lon << " град" << "\n"
              << endl;
     }
     return 0;
