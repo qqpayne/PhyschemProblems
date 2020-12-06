@@ -1,6 +1,11 @@
 #include <cmath>
 #include "Complex.h"
 
+/*
+Функция вычислений корней n-ой степен из комплексного числа
+Написано В. В. Борисенко
+*/
+
 void Complex::roots(int n, Complex* root) const {
     double r = abs();
     r = pow(r, 1./double(n));
